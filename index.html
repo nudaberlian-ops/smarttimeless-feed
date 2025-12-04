@@ -47,7 +47,8 @@
 <div id="feed">Loading feed...</div>
 
 <script>
-const RSS_URL = "https://smarttimeless.com/feeds/posts/default?alt=rss";
+const RSS_URL = "https://smarttimeless.com/feeds/posts/default?alt=rss&max-results=500";
+
 const API = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(RSS_URL);
 
 async function loadRSS() {
