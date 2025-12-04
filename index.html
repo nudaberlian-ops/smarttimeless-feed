@@ -18,7 +18,8 @@ body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; }
 
 <script>
 // JSON FEED TANPA LIMIT
-const FEED_URL = "https://smarttimeless.com/feeds/posts/default?alt=json&max-results=500";
+const FEED_URL = "https://api.rss2json.com/v1/api.json?rss_url=https://smarttimeless.com/feeds/posts/default?max-results=500";
+
 
 async function loadFeed() {
     try {
