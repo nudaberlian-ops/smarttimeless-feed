@@ -1,81 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Timeless – RSS Feed Mirror</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 40px auto;
-            line-height: 1.6;
-        }
-        h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-        p {
-            font-size: 16px;
-            color: #444;
-        }
-        .post {
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #ddd;
-        }
-        .post a {
-            font-size: 20px;
-            text-decoration: none;
-            color: #0066cc;
-            font-weight: bold;
-        }
-        .post a:hover { text-decoration: underline; }
-        .date {
-            color: #666;
-            font-size: 14px;
-            margin: 5px 0;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Smart Timeless – Feed Mirror</title>
+<style>
+body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; }
+.post { border-bottom: 1px solid #ddd; padding: 10px 0; }
+.post a { font-size: 20px; color: #0077cc; text-decoration: none; }
+.post a:hover { text-decoration: underline; }
+.date { color: gray; font-size: 14px; }
+</style>
 </head>
 <body>
 
-<h1>Smart Timeless — RSS Feed Mirror</h1>
-<p>This public RSS mirror updates automatically and contains backlinks to all SmartTimeless.com articles.</p>
-
+<h1>Smart Timeless — JSON Feed Mirror</h1>
 <div id="feed">Loading feed...</div>
 
 <script>
-const RSS_URL = "https://smarttimeless.com/feeds/posts/default?alt=rss&max-results=500";
+// JSON FEED TANPA LIMIT
+const FEED_URL = "https://smarttimeless.com/feeds/posts/default?alt=json&max-results=500";
 
-const API = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(RSS_URL);
-
-async function loadRSS() {
+async function loadFeed() {
     try {
-        const res = await fetch(API);
+        const res = await fetch(FEED_URL);
         const data = await res.json();
-
+        
+        let entries = data.feed.entry || [];
         let html = "";
 
-        data.items.forEach(item => {
+        entries.forEach(item => {
+            let title = item.title.$t;
+            let link = item.link.find(l => l.rel === "alternate").href;
+            let published = new Date(item.published.$t).toLocaleDateString();
+            let summary = item.summary ? item.summary.$t : "";
+
             html += `
                 <div class="post">
-                    <a href="${item.link}" target="_blank">${item.title}</a>
-                    <div class="date">${new Date(item.pubDate).toLocaleDateString()}</div>
-                    <p>${item.description.replace(/<[^>]+>/g, '').substring(0, 180)}...</p>
+                    <a href="${link}" target="_blank">${title}</a>
+                    <div class="date">${published}</div>
+                    <p>${summary.substring(0, 150)}...</p>
                 </div>
             `;
         });
 
         document.getElementById("feed").innerHTML = html;
 
-    } catch (e) {
+    } catch (error) {
         document.getElementById("feed").innerHTML = "Failed to load feed.";
     }
 }
 
-loadRSS();
+loadFeed();
 </script>
 
 </body>
