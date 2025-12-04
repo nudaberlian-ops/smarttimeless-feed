@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Smart Timeless – Feed Mirror</title>
+<title>Smart Timeless – JSON Feed Mirror</title>
 <style>
 body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; }
 .post { border-bottom: 1px solid #ddd; padding: 10px 0; }
@@ -17,38 +17,42 @@ body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; }
 <div id="feed">Loading feed...</div>
 
 <script>
-// JSON FEED TANPA LIMIT
-const FEED_URL = "https://api.rss2json.com/v1/api.json?rss_url=https://smarttimeless.com/feeds/posts/default?max-results=500";
-
+// RSS2JSON PROXY (bypass CORS)
+const FEED_URL =
+  "https://api.rss2json.com/v1/api.json?rss_url=https://smarttimeless.com/feeds/posts/default?max-results=500";
 
 async function loadFeed() {
-    try {
-        const res = await fetch(FEED_URL);
-        const data = await res.json();
-        
-        let entries = data.feed.entry || [];
-        let html = "";
+  try {
+    const res = await fetch(FEED_URL);
+    const data = await res.json();
 
-        entries.forEach(item => {
-            let title = item.title.$t;
-            let link = item.link.find(l => l.rel === "alternate").href;
-            let published = new Date(item.published.$t).toLocaleDateString();
-            let summary = item.summary ? item.summary.$t : "";
-
-            html += `
-                <div class="post">
-                    <a href="${link}" target="_blank">${title}</a>
-                    <div class="date">${published}</div>
-                    <p>${summary.substring(0, 150)}...</p>
-                </div>
-            `;
-        });
-
-        document.getElementById("feed").innerHTML = html;
-
-    } catch (error) {
-        document.getElementById("feed").innerHTML = "Failed to load feed.";
+    if (!data.items) {
+      document.getElementById("feed").innerHTML = "No feed items found.";
+      return;
     }
+
+    let html = "";
+
+    data.items.forEach(item => {
+      let title = item.title;
+      let link = item.link;
+      let published = new Date(item.pubDate).toLocaleDateString();
+      let summary = item.description.replace(/<[^>]+>/g, "").substring(0, 150);
+
+      html += `
+        <div class="post">
+          <a href="${link}" target="_blank">${title}</a>
+          <div class="date">${published}</div>
+          <p>${summary}...</p>
+        </div>
+      `;
+    });
+
+    document.getElementById("feed").innerHTML = html;
+
+  } catch (error) {
+    document.getElementById("feed").innerHTML = "Failed to load feed.";
+  }
 }
 
 loadFeed();
