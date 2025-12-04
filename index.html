@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Timeless – RSS Feed Mirror</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            line-height: 1.6;
+        }
+        .post {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .post a {
+            font-size: 20px;
+            text-decoration: none;
+            color: #0066cc;
+        }
+        .post a:hover { text-decoration: underline; }
+        .date {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Smart Timeless — RSS Feed Mirror</h1>
+<p>This public RSS mirror updates automatically and contains backlinks to all SmartTimeless.com articles.</p>
+
+<div id="feed"></div>
+
+<script>
+const RSS_URL = "https://smarttimeless.com/feeds/posts/default?alt=rss";
+
+async function loadRSS() {
+    const response = await fetch("https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(RSS_URL));
+    const data = await response.json();
+
+    let html = "";
+    data.items.forEach(item => {
+        html += `
+            <div class="post">
+                <a href="${item.link}" target="_blank">${item.title}</a>
+                <div class="date">${new Date(item.pubDate).toLocaleDateString()}</div>
+                <p>${item.description.substring(0, 150)}...</p>
+            </div>
+        `;
+    });
+    document.getElementById("feed").innerHTML = html;
+}
+
+loadRSS();
+</script>
+
+</body>
+</html>
