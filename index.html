@@ -17,42 +17,41 @@ body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; }
 <div id="feed">Loading feed...</div>
 
 <script>
-const FEED_URL = "https://script.google.com/macros/s/AKfycbzv2RQ3L2FGn4G1DpvoclaasKhseEeH8G8D0QqNQEC3HmjaYLIV1YsoCCjhTfWpNHrkWQ/exec";
+// FEED PROXY (Google Apps Script)
+const FEED_URL = "https://script.google.com/macros/s/AKfycbzFsqBXtC-PWnzqkAfT9KY4b6VCpREDndQ-hKoUvjQVnsumSMLOAiOn80uiXQsCM3PhGA/exec";
 
 async function loadFeed() {
-    try {
-        const res = await fetch(FEED_URL);
-        const data = await res.json();
+  try {
+    const res = await fetch(FEED_URL);
+    const data = await res.json();
 
-        // Blogger JSON ada di `data.feed.entry`
-        const entries = data.feed?.entry;
-        if (!entries) {
-            document.getElementById("feed").innerHTML = "No feed items found.";
-            return;
-        }
-
-        let html = "";
-
-        entries.forEach(item => {
-            let title = item.title.$t;
-            let link = item.link.find(l => l.rel === "alternate").href;
-            let published = new Date(item.published.$t).toLocaleDateString();
-            let summary = item.summary?.$t?.replace(/<[^>]+>/g, "").substring(0, 150) || "";
-
-            html += `
-                <div class="post">
-                    <a href="${link}" target="_blank">${title}</a>
-                    <div class="date">${published}</div>
-                    <p>${summary}...</p>
-                </div>
-            `;
-        });
-
-        document.getElementById("feed").innerHTML = html;
-
-    } catch (e) {
-        document.getElementById("feed").innerHTML = "Failed to load feed.";
+    if (!data.items) {
+      document.getElementById("feed").innerHTML = "No feed items found.";
+      return;
     }
+
+    let html = "";
+
+    data.items.forEach(item => {
+      let title = item.title;
+      let link = item.link;
+      let published = new Date(item.published).toLocaleDateString();
+      let summary = item.summary.substring(0, 150);
+
+      html += `
+        <div class="post">
+          <a href="${link}" target="_blank">${title}</a>
+          <div class="date">${published}</div>
+          <p>${summary}...</p>
+        </div>
+      `;
+    });
+
+    document.getElementById("feed").innerHTML = html;
+
+  } catch (error) {
+    document.getElementById("feed").innerHTML = "Failed to load feed.";
+  }
 }
 
 loadFeed();
